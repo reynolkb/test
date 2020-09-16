@@ -34,8 +34,9 @@ function tripAdvisor(cityLon, cityLat) {
             return response.json();
         })
         .then(data => {
-            console.log(data);
-            console.log(data.data[0], data.data[1]);
+            console.log("Trip Advisor data: " + data);
+            console.log("Restaurant 1 data: " + data.data[0]);
+            console.log("Restaurant 2 data: " + data.data[1])
             restaurantOneLon = data.data[0].longitude;
             restaurantOneLat = data.data[0].latitude;
             restaurantTwoLon = data.data[1].longitude;
