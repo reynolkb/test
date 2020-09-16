@@ -49,8 +49,9 @@ function tripAdvisor(cityLon, cityLat) {
 }
 
 function directions(restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat) {
-    var apiUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=" + restaurantOneLat + "," + restaurantOneLon + "&destination=" + restaurantTwoLat + "," + restaurantTwoLon + "&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg";
     var corsAnywhere = "https://cors-anywhere.herokuapp.com/";
+    var apiUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=" + restaurantOneLat + "," + restaurantOneLon + "&destination=" + restaurantTwoLat + "," + restaurantTwoLon + "&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg";
+    console.log(apiUrl);
 
     fetch(corsAnywhere + apiUrl)
         .then(function (response) {
