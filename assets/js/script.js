@@ -49,7 +49,10 @@ function tripAdvisor(cityLon, cityLat) {
 }
 
 function directions(restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat) {
-    fetch("https://crossorigin.me/https://maps.googleapis.com/maps/api/directions/json?origin=" + restaurantOneLat + "," + restaurantOneLon + "&destination=" + restaurantTwoLat + "," + restaurantTwoLon + "&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg")
+    var apiUrl = "https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/directions/json?origin=" + restaurantOneLat + "," + restaurantOneLon + "&destination=" + restaurantTwoLat + "," + restaurantTwoLon + "&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg";
+    var corsAnywhere = "https://cors-anywhere.herokuapp.com/";
+
+    fetch(corsAnywhere + apiUrl)
         .then(function (response) {
             response.json();
         })
