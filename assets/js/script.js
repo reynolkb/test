@@ -4,6 +4,11 @@ var restaurantOneLon;
 var restaurantOneLat;
 var restaurantTwoLon;
 var restaurantTwoLat;
+var attractionOneLon;
+var attractionOneLat;
+var attractionTwoLon;
+var attractionTwoLat;
+var map;
 
 function city() {
     fetch("https://maps.googleapis.com/maps/api/geocode/json?address=+Beverly+Hills,+CA&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg")
@@ -12,9 +17,12 @@ function city() {
         })
         .then(function (data) {
             cityLon = data.results[0].geometry.location.lng;
+            cityLon = parseFloat(cityLon);
             cityLat = data.results[0].geometry.location.lat;
+            cityLat = parseFloat(cityLat);
             console.log(cityLon, cityLat);
-            tripAdvisor(cityLon, cityLat);
+
+            restaurants(cityLon, cityLat);
         })
         .catch(function (error) {
             console.log(error);
@@ -22,7 +30,7 @@ function city() {
 
 }
 
-function tripAdvisor(cityLon, cityLat) {
+function restaurants(cityLon, cityLat) {
     fetch("https://tripadvisor1.p.rapidapi.com/restaurants/list-by-latlng?limit=30&currency=USD&distance=2&lunit=km&lang=en_US&latitude=" + cityLat + "&longitude=" + cityLon, {
         "method": "GET",
         "headers": {
@@ -34,33 +42,105 @@ function tripAdvisor(cityLon, cityLat) {
             return response.json();
         })
         .then(data => {
-            console.log("Trip Advisor data: " + data);
-            console.log("Restaurant 1 data: " + data.data[0]);
-            console.log("Restaurant 2 data: " + data.data[1])
+            console.log(data);
+            console.log(data.data[0]);
+            console.log(data.data[1])
             restaurantOneLon = data.data[0].longitude;
             restaurantOneLat = data.data[0].latitude;
             restaurantTwoLon = data.data[1].longitude;
             restaurantTwoLat = data.data[1].latitude;
 
-            directions(restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat)
+            // createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat)
+            attractions(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat);
         })
         .catch(err => {
             console.log(err);
         });
 }
 
-function directions(restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat) {
-    var corsAnywhere = "https://cors-anywhere.herokuapp.com/";
-    var apiUrl = "https://maps.googleapis.com/maps/api/directions/json?origin=" + restaurantOneLat + "," + restaurantOneLon + "&destination=" + restaurantTwoLat + "," + restaurantTwoLon + "&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg";
-    console.log(apiUrl);
-
-    fetch(corsAnywhere + apiUrl)
-        .then(function (response) {
-            response.json();
+function attractions(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat) {
+    fetch("https://tripadvisor1.p.rapidapi.com/attractions/list-by-latlng?lunit=km&currency=USD&limit=30&distance=5&lang=en_US&longitude=" + cityLon + "&latitude=" + cityLat, {
+        "method": "GET",
+        "headers": {
+            "x-rapidapi-host": "tripadvisor1.p.rapidapi.com",
+            "x-rapidapi-key": "693350c65dmsh5ad1865d9215e1dp1a9131jsn53d32f4069ff"
+        }
+    })
+        .then(response => {
+            return response.json();
         })
-        .then(function (data) {
+        .then(data => {
             console.log(data);
+            attractionOneLon = data.data[0].longitude;
+            attractionOneLat = data.data[0].latitude;
+            attractionTwoLon = data.data[1].longitude;
+            attractionTwoLat = data.data[1].latitude;
+            console.log(attractionOneLon);
+
+            createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat, attractionOneLon, attractionOneLat, attractionTwoLon, attractionTwoLat);
         })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+function createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat, attractionOneLon, attractionOneLat, attractionTwoLon, attractionTwoLat) {
+    // Create the script tag, set the appropriate attributes
+    var script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg&callback=initMap';
+    script.defer = true;
+
+    // Attach your callback function to the `window` object
+
+    window.initMap = function () {
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer();
+
+        // location variable to store lat/lng
+        var location = { lat: cityLat, lng: cityLon };
+
+        // create map
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: location,
+            zoom: 12
+        });
+
+        directionsRenderer.setMap(map);
+        calculateAndDisplayRoute(directionsService, directionsRenderer);
+    };
+
+    // Append the 'script' element to 'head'
+    document.head.appendChild(script);
+
+    function calculateAndDisplayRoute(directionsService, directionsRenderer) {
+        restaurantOneLon = restaurantOneLon.toString();
+        restaurantOneLat = restaurantOneLat.toString();
+        restaurantTwoLon = restaurantTwoLon.toString();
+        restaurantTwoLat = restaurantTwoLat.toString();
+        attractionOneLon = attractionOneLon.toString();
+        attractionOneLat = attractionOneLat.toString();
+        attractionTwoLon = attractionTwoLon.toString();
+        attractionTwoLat = attractionTwoLat.toString();
+
+        directionsService.route(
+            {
+                // origin: '34.0736204, -118.4003563',
+                // destination: '41.850033, -117.4003563',
+                // waypoints: [{ location: '35.0736204, -118.4003563' }],
+                origin: restaurantOneLat + ", " + restaurantOneLon,
+                destination: attractionOneLat + ", " + attractionOneLon,
+                waypoints: [{ location: restaurantTwoLat + ", " + restaurantTwoLon }, { location: attractionTwoLat + ", " + attractionTwoLon }],
+                travelMode: google.maps.TravelMode.DRIVING
+            },
+            (response, status) => {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(response);
+                } else {
+                    window.alert("Directions request failed due to " + status);
+                }
+            }
+        );
+    }
 }
 
 city();
