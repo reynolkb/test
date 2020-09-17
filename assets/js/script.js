@@ -10,8 +10,21 @@ var attractionTwoLon;
 var attractionTwoLat;
 var map;
 
+// var input = document.getElementById("input").value;
+
 function city() {
-    fetch("https://maps.googleapis.com/maps/api/geocode/json?address=+Beverly+Hills,+CA&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg")
+    var cityInput = "Beverly Hills, CA";
+    cityInput = " " + cityInput.trim();
+    cityInput = cityInput.replace(" ", "+");
+
+    console.log(cityInput.indexOf(", "));
+
+    var check = cityInput.substring(cityInput.indexOf(", ") + 2);
+    if (check.length !== 2) {
+        console.log("error");
+    }
+
+    fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${cityInput}&key=AIzaSyCv_iF_YniNOH9mI6WvJc66w5bo3_PXXCg`)
         .then(function (response) {
             return response.json();
         })
@@ -43,12 +56,27 @@ function restaurants(cityLon, cityLat) {
         })
         .then(data => {
             console.log(data);
-            console.log(data.data[0]);
-            console.log(data.data[1])
+            // console.log(data.data[0]);
+            // console.log(data.data[1])
             restaurantOneLon = data.data[0].longitude;
             restaurantOneLat = data.data[0].latitude;
             restaurantTwoLon = data.data[1].longitude;
             restaurantTwoLat = data.data[1].latitude;
+
+            var key = 'American';
+            var arrFiltered = [];
+
+            for (var i = 0; i < data.data.length; i++) {
+                if (data.data[i].name) {
+                    for (var j = 0; j < data.data[i].cuisine.length; j++) {
+                        if (data.data[i].cuisine[j].name === key) {
+                            arrFiltered.push(data.data[i]);
+                        }
+                    }
+                }
+            }
+
+            console.log(arrFiltered);
 
             // createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat)
             attractions(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat);
@@ -75,7 +103,25 @@ function attractions(cityLon, cityLat, restaurantOneLon, restaurantOneLat, resta
             attractionOneLat = data.data[0].latitude;
             attractionTwoLon = data.data[1].longitude;
             attractionTwoLat = data.data[1].latitude;
-            console.log(attractionOneLon);
+
+            var key = 'Nature & Parks';
+            var arrFiltered2 = [];
+
+            for (var i = 0; i < data.data.length; i++) {
+                if (data.data[i]) {
+                    for (var j = 0; j < data.data[i].subcategory.length; j++) {
+                        // for (var k = 0; k < key.length; k++) {
+                        //  if(data.data[i].subcategory[j].name === key[k];
+                        //  arrFiltered2.push(data.data[i]);
+                        // }
+                        if (data.data[i].subcategory[j].name === key) {
+                            arrFiltered2.push(data.data[i]);
+                        }
+                    }
+                }
+            }
+
+            console.log(arrFiltered2);
 
             createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaurantTwoLon, restaurantTwoLat, attractionOneLon, attractionOneLat, attractionTwoLon, attractionTwoLat);
         })
@@ -124,9 +170,6 @@ function createMap(cityLon, cityLat, restaurantOneLon, restaurantOneLat, restaur
 
         directionsService.route(
             {
-                // origin: '34.0736204, -118.4003563',
-                // destination: '41.850033, -117.4003563',
-                // waypoints: [{ location: '35.0736204, -118.4003563' }],
                 origin: restaurantOneLat + ", " + restaurantOneLon,
                 destination: attractionOneLat + ", " + attractionOneLon,
                 waypoints: [{ location: restaurantTwoLat + ", " + restaurantTwoLon }, { location: attractionTwoLat + ", " + attractionTwoLon }],
